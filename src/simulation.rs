@@ -82,11 +82,13 @@ impl Simulation{
 
 		if self.changed[0] != self.changed[1]{
 			// only calculate the missing ones
+			//println!("Calculating the missing ones only!");
 			for d in self.changed{
 				self.energy_array[d] = self.data.dist( &self.in_cluster(d) );
 			}
 		}
 		else {
+			println!("Calculate all energy values");
 			for d in 0..self.k{
 				self.energy_array[d] = self.data.dist( &self.in_cluster(d) );
 			}

@@ -59,7 +59,7 @@ fn main() {
     let mut data = Data::read_file( &opts.data , sep );
 
     let mut rng = rand::thread_rng();
-    let mut t:f64 = opts.t1 as f64;
+    let mut t:f64 = opts.t1;
 
     //data.print();
     data.scale();
@@ -69,21 +69,23 @@ fn main() {
     let mut old_energy = sim.calc_energy( ) / opts.clusters as f64;
     let mut new_energy = 0.0;
     let mut shifts = 0;
+    let mut rand = rng.gen::<f64>();
     println!( "Starting energy is {old_energy:0.2}");
     let mut doit:bool;
     for _i in 0..opts.it {
         sim.switch_row();
         new_energy = sim.calc_energy( ) / opts.clusters as f64;
         doit = false;
+        rand = rng.gen::<f64>();
         if new_energy < old_energy {
             doit = true;
         }
-        else if libm::exp( -( (new_energy - old_energy) / t ) ) > rng.gen::<f64>()  {
-            //println!("mad it : T={t}");
+        else if libm::exp( -( (new_energy - old_energy) / t ) ) > rand {
             doit = true;
         }
-        
-        if doit {
+        if doit{
+            //sim.print_change();
+            //println!( "libm::exp( -( ({new_energy:0.6} - {old_energy:0.6}) / {t:0.2} ) ) = {:0.2} > {rand:0.2}",  libm::exp( -( (new_energy - old_energy) / t ) ));
             sim.fixate();
             shifts += 1;
             old_energy = new_energy;
@@ -92,7 +94,7 @@ fn main() {
             sim.rinse();
             new_energy = old_energy;
         }
-        t *= opts.cf as f64;
+        t *= opts.cf;
     }
 
 

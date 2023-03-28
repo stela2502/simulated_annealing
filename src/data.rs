@@ -132,16 +132,9 @@ impl Data {
 		min
 	}
 	pub fn scale ( &mut self ){
-
-		let mut sum:f64;
-		let mut min:f64;
-
 		for mut row in self.data.rows_mut() {
-			min = Self::min( &row );
-			row -= min;
-			sum = Self::max( &row );
-			row /= sum;
-			//println! ("the line has min ({}) and sum ({:.2}) values", Self::min(&row), Self::sum(&row) )
+			row -= Self::min( &row );
+			row /= Self::max( &row );
 		}
 	}
 
@@ -151,20 +144,43 @@ impl Data {
 
 	    for i in 0..ids.len() {
 	        for j in i+1..ids.len() {
-	            let dist = Self::euclidean_distance(self.data.index_axis(Axis(0), i), self.data.index_axis(Axis(0), j));
+	            let dist = Self::euclidean_distance(self.data.index_axis(Axis(0), ids[i]), 
+	            	self.data.index_axis(Axis(0), ids[j]));
 	            sum += dist;
-	            //println!("Euclidean distance between {} and {} is {}", i, j, dist);
+	            //println!("{}: {}\n{}: {}", self.rownames[ids[i]], self.data.index_axis(Axis(0),ids[i]),
+	            //	self.rownames[ids[j]], self.data.index_axis(Axis(0), ids[j]) ) ;
+	            //println!("Euclidean distance between {} and {} is {}", ids[i], ids[j], dist);
 	        }
 	    }
 	    sum // / ids.len() as f64
 	}
 
-	fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {
-	    (p1.iter().zip(p2.iter()).map(|(x, y)| (x - y).powf(2.0)).sum::<f64>() as f64).sqrt()
+	pub fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {
+		(p1.iter().zip(p2.iter()).map(|(x, y)| (x - y).powf(2.0)).sum::<f64>()).sqrt()
 	}
 
 	pub fn print ( &self ){
 		println!("{}", self.data);
 	}
+
+}
+
+#[cfg(test)]
+mod tests {
+
+    use crate::data::Data;
+    use std::path::Path;
+
+     #[test]
+    fn check_dist() {
+
+    	let mut data = Data::read_file( &"testData/Spellman_Yeast_Cell_Cycle.tsv".to_string(), '\t' );
+    	data.scale();
+    	let mut ids =Vec::<usize>::with_capacity(10);
+    	for i in 0..10{
+    		ids.push(i);
+    	}
+    	assert_eq!( data.dist( &ids ), 58.69013053176867 );
+    }
 
 }

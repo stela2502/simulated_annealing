@@ -16,6 +16,7 @@ pub struct Simulation{
 	pub changed: [usize;2],
 	pub k: usize,
 	row_c: usize,
+	old_energy: [f64;2],
 }
 
 impl Simulation{
@@ -25,7 +26,7 @@ impl Simulation{
 		let mut energy_array = Vec::<f64>::with_capacity( *k  );
 		let mut rng = rand::thread_rng();
 
-		let mut grouping: Data;
+		let grouping: Data;
 
 		if Path::new( &start ).exists(){
 			grouping = Data::read_file( &start, '\t' );
@@ -38,7 +39,7 @@ impl Simulation{
 			}
 		}
 
-		if new.len() == 0{
+		if new.is_empty(){
 			println!("randomly assigning groups");
 			for _i in 0..data.rows {
 				let r = rng.gen_range(0..*k);
@@ -54,6 +55,7 @@ impl Simulation{
 		let energy = 0.0;
 		let changed = [0,0];
 		let row_c = 0;
+		let old_energy = [0.0 as f64;2];
 
 		Self {
 			data,
@@ -64,6 +66,7 @@ impl Simulation{
 			changed,
 			k:*k,
 			row_c,
+			old_energy,
 		}
 	}
 
@@ -83,12 +86,14 @@ impl Simulation{
 		if self.changed[0] != self.changed[1]{
 			// only calculate the missing ones
 			//println!("Calculating the missing ones only!");
+			self.old_energy[0] = self.energy_array[self.changed[0]];
+			self.old_energy[1] = self.energy_array[self.changed[1]];
 			for d in self.changed{
 				self.energy_array[d] = self.data.dist( &self.in_cluster(d) );
 			}
 		}
 		else {
-			println!("Calculate all energy values");
+			//println!("Calculate all energy values");
 			for d in 0..self.k{
 				self.energy_array[d] = self.data.dist( &self.in_cluster(d) );
 			}
@@ -117,6 +122,8 @@ impl Simulation{
 
 	pub fn rinse( &mut self ){
 		self.new[self.row_c] = self.last[self.row_c];
+		self.energy_array[self.changed[0]] = self.old_energy[0];
+		self.energy_array[self.changed[1]] = self.old_energy[1];
 	}
 
 	pub fn write( &mut self, fp:&PathBuf,  ){
@@ -135,4 +142,36 @@ impl Simulation{
         	}
     	}
 	}
+	pub fn print_change( &self ){
+		println!("gene{} moved from cluster {} to {}", self.row_c, self.changed[0], self.changed[1] );
+
+	}
+}
+
+
+#[cfg(test)]
+mod tests {
+
+    use crate::data::Data;
+    use crate::simulation::Simulation;
+    use std::path::Path;
+
+     #[test]
+    fn check_dist() {
+
+    	let mut data = Data::read_file( &"testData/Spellman_Yeast_Cell_Cycle.tsv".to_string(), '\t' );
+    	data.scale();
+    	let mut sim = Simulation::new( data, &10, "testData/RFclustered.txt".to_string() );
+    	let ids = sim.in_cluster( 0 );
+    	assert_eq!( ids, [0, 4, 16, 17, 32, 33, 56, 63, 88, 89, 91, 
+    						92, 99, 106, 108, 121, 131, 133, 137, 144, 149,
+    	 					163, 172, 173, 174, 180, 185, 187, 200,
+    	  					211, 225, 237, 242, 243, 253]);
+
+    	assert_eq!( sim.data.dist( &sim.in_cluster( 0 ) ), 521.4210862193595  );
+
+    	let new_energy = sim.calc_energy( ) / 10.0;
+
+    }
+
 }

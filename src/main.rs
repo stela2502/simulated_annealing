@@ -89,6 +89,7 @@ fn main() {
             old_energy = new_energy;
         }
         else {
+            sim.rinse();
             new_energy = old_energy;
         }
         t *= opts.cf as f64;

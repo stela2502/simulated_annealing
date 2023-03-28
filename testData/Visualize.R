@@ -7,7 +7,7 @@ cfiles
 grouping = read.delim(cfiles[1], sep="\t", row.names=1)
 head(grouping)
 
-df_scale = t(apply( df, 1, function(x) { (x-min(x))/ max(x) } ))
+df_scale = t(apply( df, 1, function(x) { (x-min(x))/ ( min(x) -max(x) ) } ))
 
 
 for (group in sort(unique(grouping[,1]))){

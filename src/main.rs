@@ -9,6 +9,10 @@ use simulated_annealing::simulation::Simulation;
 use rand::Rng;
 
 
+/// Run a simulated anealing clustering over the rows of the provided data.
+/// the 
+/// The software is a demo project for the Lund Stem Cell Center - Bioinformatics Rust course 
+
 #[derive(Parser)]
 #[clap(version = "1.0.0", author = "Stefan L. <stefan.lang@med.lu.se>")]
 struct Opts {
@@ -33,6 +37,9 @@ struct Opts {
     /// the number of iterations
     #[clap( default_value_t= 25000, long)]
     it: usize,
+    /// a starting grouping
+    #[clap( default_value= "testData/RFclustered.txt", long)]
+    start: String,
 }
 
 
@@ -58,24 +65,27 @@ fn main() {
     data.scale();
     //data.print();
 
-    let mut sim = Simulation::new( data, &opts.clusters );
-    let mut old_energy = sim.calc_energy( );
+    let mut sim = Simulation::new( data, &opts.clusters, opts.start );
+    let mut old_energy = sim.calc_energy( ) / opts.clusters as f64;
     let mut new_energy = 0.0;
-    println!( "Starting energy is {old_energy}");
+    let mut shifts = 0;
+    println!( "Starting energy is {old_energy:0.2}");
     let mut doit:bool;
     for _i in 0..opts.it {
         sim.switch_row();
-        new_energy = sim.calc_energy( );
+        new_energy = sim.calc_energy( ) / opts.clusters as f64;
         doit = false;
         if new_energy < old_energy {
             doit = true;
         }
         else if libm::exp( -( (new_energy - old_energy) / t ) ) > rng.gen::<f64>()  {
+            //println!("mad it : T={t}");
             doit = true;
         }
         
         if doit {
             sim.fixate();
+            shifts += 1;
             old_energy = new_energy;
         }
         else {
@@ -104,7 +114,7 @@ fn main() {
             let min = milli % 60;
             milli= (milli -min) /60;
 
-            println!("finished in {milli}h {min}min {sec} sec {mil}milli sec - end energy was {new_energy}\n" );},
+            println!("finished in {milli}h {min}min {sec} sec {mil}milli sec - end energy was {new_energy:0.2} with {shifts} gene shifts ({:0.2}%) and end t1 = {t:0.2}\n", shifts as f32 / opts.it as f32 );},
        Err(e) => {println!("Error: {e:?}");}
     }
 

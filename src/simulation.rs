@@ -4,6 +4,7 @@ use std::io::BufWriter;
 use std::io::Write;
 use std::path::PathBuf;
 use std::fs::File;
+use std::path::Path;
 
 #[derive(Debug)]
 pub struct Simulation{
@@ -18,17 +19,34 @@ pub struct Simulation{
 }
 
 impl Simulation{
-	pub fn new( data:Data, k:&usize ) -> Self {
+	pub fn new( data:Data, k:&usize, start:String ) -> Self {
 		let mut last = Vec::<usize>::with_capacity( data.rows );
 		let mut new = Vec::<usize>::with_capacity( data.rows );
 		let mut energy_array = Vec::<f64>::with_capacity( *k  );
 		let mut rng = rand::thread_rng();
 
-		for _i in 0..data.rows {
-			let r = rng.gen_range(0..*k);
-			new.push( r );
-			last.push ( r );
+		let mut grouping: Data;
+
+		if Path::new( &start ).exists(){
+			grouping = Data::read_file( &start, '\t' );
+			if data.rows == grouping.rows {
+				for i in 0..data.rows {
+					let r = grouping.data[[i,0]].round() as usize - 1;
+					new.push( r );
+					last.push ( r );
+				}
+			}
 		}
+
+		if new.len() == 0{
+			println!("randomly assigning groups");
+			for _i in 0..data.rows {
+				let r = rng.gen_range(0..*k);
+				new.push( r );
+				last.push ( r );
+			}
+		}
+		
 		for _i in 0..*k{
 			energy_array.push(0.0);
 		}

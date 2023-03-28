@@ -11,7 +11,7 @@ pub struct Data{
 	pub rows:usize, // the amount of rows
 	pub cols:usize, // the amount of cols
 	pub rownames: Vec::<String>, //rge rownames of the data - we will cluster them
-	data: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
+	pub data: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
 }
 
 
@@ -70,11 +70,12 @@ impl Data {
 	        match line {
 	            Ok(line) => {
 	                header =true;
-	                for val in line.split( sep ).collect::<Vec<&str>>(){
+	                for mut val in line.split( sep ).collect::<Vec<&str>>(){
 	                    if header{
 	                        names.push( val.to_string() );
 	                        header = false;
 	                    }else {
+	                    	val = val.trim();
 	                        let v = match val.parse::<f64>() {
 	                            Ok( v ) => v,
 	                            Err(_err) => {
@@ -155,7 +156,7 @@ impl Data {
 	            //println!("Euclidean distance between {} and {} is {}", i, j, dist);
 	        }
 	    }
-	    sum
+	    sum // / ids.len() as f64
 	}
 
 	fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {

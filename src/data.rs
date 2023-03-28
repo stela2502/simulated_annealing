@@ -121,15 +121,15 @@ impl Data {
 		min
 	}
 
-	// fn max ( data: &ArrayBase<ViewRepr<&mut f64>, Dim<[usize; 1]>> ) -> f64 {
-	// 	let mut min:f64 = -1000000000.0;
-	// 	for val in data{
-	// 		if val > &min {
-	// 			min = *val;
-	// 		}
-	// 	}
-	// 	min
-	// }
+	fn max ( data: &ArrayBase<ViewRepr<&mut f64>, Dim<[usize; 1]>> ) -> f64 {
+		let mut min:f64 = -1000000000.0;
+		for val in data{
+			if val > &min {
+				min = *val;
+			}
+		}
+		min
+	}
 	pub fn scale ( &mut self ){
 
 		let mut sum:f64;
@@ -138,7 +138,7 @@ impl Data {
 		for mut row in self.data.rows_mut() {
 			min = Self::min( &row );
 			row -= min;
-			sum = Self::sum( &row );
+			sum = Self::max( &row );
 			row /= sum;
 			//println! ("the line has min ({}) and sum ({:.2}) values", Self::min(&row), Self::sum(&row) )
 		}

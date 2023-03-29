@@ -41,3 +41,42 @@ cargo build -r
 target/release/simulated_annealing -c 12 --it 100000 --t1 20 --cf 0.9995
 Rscript testData/Visualize.R
 ```
+
+# Usage
+
+```
+simulated_annealing  -h
+simulated_annealing 1.0.0
+Stefan L. <stefan.lang@med.lu.se>
+Run a simulated anealing clustering over the rows of the provided data. The software is a demo
+project for the Lund Stem Cell Center - Bioinformatics Rust workshop.
+
+USAGE:
+    simulated_annealing [OPTIONS]
+
+OPTIONS:
+    -c, --clusters <CLUSTERS>    the target cluster count [default: 10]
+        --cf <CF>                the cooling factor [default: 0.9995]
+    -d, --data <DATA>            the data (text file) [default:
+                                 testData/Spellman_Yeast_Cell_Cycle.tsv]
+    -h, --help                   Print help information
+        --it <IT>                the number of iterations [default: 25000]
+    -o, --outpath <OUTPATH>      the outpath [default: testData/TestClustering]
+    -s, --sep <SEP>              the column separator for the file [default: \t]
+        --start <START>          a starting grouping [default: testData/RFclustered.txt]
+        --t1 <T1>                the starting temperature [default: 20]
+    -V, --version                Print version information
+```
+
+
+## Output
+
+```
+target/release/simulated_annealing  --start "notThis" -c 10
+I got 256 rows and 16 cols in this data
+precalculate the distances between genes
+Finished
+randomly assigning groups
+Starting energy is 486.76
+finished in 0 h 0 min 0 sec 31 milli sec - end energy was 294.19 with 7475 gene shifts (0.30%) and end t1 = 0.00
+````

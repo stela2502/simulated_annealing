@@ -9,9 +9,8 @@ use simulated_annealing::simulation::Simulation;
 use rand::Rng;
 
 
-/// Run a simulated anealing clustering over the rows of the provided data.
-/// the 
-/// The software is a demo project for the Lund Stem Cell Center - Bioinformatics Rust course 
+/// Run a simulated anealing clustering over the rows of the provided data. 
+/// The software is a demo project for the Lund Stem Cell Center - Bioinformatics Rust course.
 
 #[derive(Parser)]
 #[clap(version = "1.0.0", author = "Stefan L. <stefan.lang@med.lu.se>")]

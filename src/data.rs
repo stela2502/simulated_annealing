@@ -15,7 +15,6 @@ pub struct Data{
 	pub rownames: Vec::<String>, //rge rownames of the data - we will cluster them
 	pub data: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
 	pub total_energy: Vec::<f64>, //the total energy of the gene in the given cluster
-	//store: BTreeMap<usize, BTreeMap<usize, f64 >>,
 	store: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
 }
 
@@ -185,25 +184,6 @@ impl Data {
 	fn get_dist_from_store( &self, i:usize, j:usize ) -> f64{
 		self.store[[i,j]]
 	}
-
-	// fn get_dist_from_store( &mut self, i:usize, j:usize ) -> f64{
-
-
-	// 	let inner_map = self.store.entry( i ).or_insert(BTreeMap::new());
-
-	// 	let dist = match inner_map.get(&j) {
-	// 		Some( d ) => {
-	// 			*d
-	// 		},
-	// 		None => { 
-    //     		let d= Self::euclidean_distance(self.data.index_axis(Axis(0), i), 
-	//             	self.data.index_axis(Axis(0), j));
-    //     		inner_map.insert( j, d );
-    //     		d
-    //     	},
-    //     };
-    //     dist
-	// }
 
 	fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {
 		(p1.iter().zip(p2.iter()).map(|(x, y)| (x - y).powf(2.0)).sum::<f64>()).sqrt()

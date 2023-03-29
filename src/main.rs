@@ -23,7 +23,7 @@ struct Opts {
     #[clap(default_value= "\\t",short, long)]
     sep: String,
     /// the target cluster count
-    #[clap( default_value=  "testData/",short, long)]
+    #[clap( default_value_t=  10,short, long)]
     clusters: usize,
     /// the outpath
     #[clap(default_value=  "testData/TestClustering",short, long)]
@@ -69,7 +69,7 @@ fn main() {
     let mut old_energy = sim.calc_energy( ) / opts.clusters as f64;
     let mut new_energy = 0.0;
     let mut shifts = 0;
-    let mut rand = rng.gen::<f64>();
+    let mut rand:f64;// = rng.gen::<f64>();
     println!( "Starting energy is {old_energy:0.2}");
     let mut doit:bool;
     for _i in 0..opts.it {
@@ -117,7 +117,7 @@ fn main() {
             let min = milli % 60;
             milli= (milli -min) /60;
 
-            println!("finished in {milli}h {min}min {sec} sec {mil}milli sec - end energy was {new_energy:0.2} with {shifts} gene shifts ({:0.2}%) and end t1 = {t:0.2}\n", shifts as f32 / opts.it as f32 );},
+            println!("finished in {milli} h {min} min {sec} sec {mil} milli sec - end energy was {new_energy:0.2} with {shifts} gene shifts ({:0.2}%) and end t1 = {t:0.2}\n", shifts as f32 / opts.it as f32 );},
        Err(e) => {println!("Error: {e:?}");}
     }
 

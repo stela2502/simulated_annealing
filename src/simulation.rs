@@ -107,7 +107,18 @@ impl Simulation{
 
 	pub fn switch_row( &mut self ) {
 		let mut rng = rand::thread_rng();
-		let r = rng.gen_range(0..self.data.rows);
+		//let k = rng.gen_range(0..self.k);
+		// let mut r:usize = 0; 
+		// let mut max:f64 = 0.0;
+		// for i in self.in_cluster( k ){
+		// 	if max < self.data.total_energy[i]{
+		// 		max = self.data.total_energy[i];
+		// 		r = i;
+		// 	}
+		// }
+
+		let r:usize = rng.gen_range(0..self.data.rows);
+		//println! ("we are looking to change gene {r}");
 		while self.new[r] == self.last[r]{
 			self.new[r] = rng.gen_range( 0..self.k );
 		}

@@ -5,7 +5,7 @@ cfiles = system('ls testData/TestClustering/*.tsv' ,intern=T)
 cfiles
 
 grouping = read.delim(cfiles[1], sep="\t", row.names=1)
-head(grouping)
+table(grouping)
 
 df_scale = t(apply( df, 1, function(x) { (x-min(x))/ ( min(x) -max(x) ) } ))
 

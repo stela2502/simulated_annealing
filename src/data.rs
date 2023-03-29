@@ -5,6 +5,8 @@ use ndarray::Array;
 use std::io::BufRead;
 use ndarray::prelude::*;
 use ndarray::ViewRepr;
+//use std::collections::BTreeMap;
+
 
 #[derive(Debug)]
 pub struct Data{
@@ -12,6 +14,9 @@ pub struct Data{
 	pub cols:usize, // the amount of cols
 	pub rownames: Vec::<String>, //rge rownames of the data - we will cluster them
 	pub data: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
+	pub total_energy: Vec::<f64>, //the total energy of the gene in the given cluster
+	//store: BTreeMap<usize, BTreeMap<usize, f64 >>,
+	store: ArrayBase<ndarray::OwnedRepr<f64>, Dim<[usize; 2]>>,
 }
 
 
@@ -21,11 +26,17 @@ impl Data {
 		//let ret = &data as &[f64]; 
 		let ret = Array::from_iter(&mut data.iter().cloned());
 		let data = ret.into_shape([rows, cols]).unwrap();
+		//let store = BTreeMap::<usize, BTreeMap<usize, f64 >>::new();
+		let store = Array::default((rows, rows));
+		let total_energy =  vec![0.0; rows];
+
 		Self {
 			rows, 
 			cols,
 			rownames,
-			data
+			data,
+			total_energy,
+			store,
 		}
 	}
 
@@ -103,13 +114,13 @@ impl Data {
 	    Self::new( rows, cols, arr,  names )
 	}
 
-	fn sum ( data: &ArrayBase<ViewRepr<&mut f64>, Dim<[usize; 1]>> ) -> f64 {
-		let mut sum = 0.0;
-		for val in data{
-			sum += val;
-		}
-		sum
-	}
+	// fn sum ( data: &ArrayBase<ViewRepr<&mut f64>, Dim<[usize; 1]>> ) -> f64 {
+	// 	let mut sum = 0.0;
+	// 	for val in data{
+	// 		sum += val;
+	// 	}
+	// 	sum
+	// }
 
 
 	fn min ( data: &ArrayBase<ViewRepr<&mut f64>, Dim<[usize; 1]>> ) -> f64 {
@@ -136,16 +147,32 @@ impl Data {
 			row -= Self::min( &row );
 			row /= Self::max( &row );
 		}
+		println!("precalculate the distances between genes");
+		for i in 0..self.rows {
+	        for j in i+1..self.rows {
+	            let dist = Data::euclidean_distance(self.data.index_axis(Axis(0), i), self.data.index_axis(Axis(0), j));
+	            self.store[[i,j]] = dist;
+	            self.store[[j,i]] = dist;
+	        }
+	    }
+	    println!("Finished");
 	}
 
-	pub fn dist( &self, ids:&Vec<usize> ) -> f64{
+	pub fn dist( &mut self, ids:&Vec<usize> ) -> f64{
 
 		let mut sum:f64 = 0.0;
 
+		for i in ids {
+			self.total_energy[*i] = 0.0;
+		}
+
 	    for i in 0..ids.len() {
 	        for j in i+1..ids.len() {
-	            let dist = Self::euclidean_distance(self.data.index_axis(Axis(0), ids[i]), 
-	            	self.data.index_axis(Axis(0), ids[j]));
+
+	            //let dist = Self::euclidean_distance(self.data.index_axis(Axis(0), ids[i]), self.data.index_axis(Axis(0), ids[j]));
+	            let dist = self.get_dist_from_store( ids[i], ids[j]);
+	            //self.total_energy[ids[i]] += dist;
+	            //self.total_energy[ids[j]] += dist;
 	            sum += dist;
 	            //println!("{}: {}\n{}: {}", self.rownames[ids[i]], self.data.index_axis(Axis(0),ids[i]),
 	            //	self.rownames[ids[j]], self.data.index_axis(Axis(0), ids[j]) ) ;
@@ -155,7 +182,30 @@ impl Data {
 	    sum // / ids.len() as f64
 	}
 
-	pub fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {
+	fn get_dist_from_store( &self, i:usize, j:usize ) -> f64{
+		self.store[[i,j]]
+	}
+
+	// fn get_dist_from_store( &mut self, i:usize, j:usize ) -> f64{
+
+
+	// 	let inner_map = self.store.entry( i ).or_insert(BTreeMap::new());
+
+	// 	let dist = match inner_map.get(&j) {
+	// 		Some( d ) => {
+	// 			*d
+	// 		},
+	// 		None => { 
+    //     		let d= Self::euclidean_distance(self.data.index_axis(Axis(0), i), 
+	//             	self.data.index_axis(Axis(0), j));
+    //     		inner_map.insert( j, d );
+    //     		d
+    //     	},
+    //     };
+    //     dist
+	// }
+
+	fn euclidean_distance(p1: ArrayView1<f64>, p2: ArrayView1<f64>) -> f64 {
 		(p1.iter().zip(p2.iter()).map(|(x, y)| (x - y).powf(2.0)).sum::<f64>()).sqrt()
 	}
 
@@ -178,9 +228,13 @@ mod tests {
     	data.scale();
     	let mut ids =Vec::<usize>::with_capacity(10);
     	for i in 0..10{
+    		println!("{}", data.rownames[i]);
     		ids.push(i);
     	}
     	assert_eq!( data.dist( &ids ), 58.69013053176867 );
     }
 
 }
+
+
+

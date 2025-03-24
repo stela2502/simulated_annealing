@@ -17,7 +17,7 @@ Now the fun starts - randomly asign one gene to a different cluster and re-run 4
 Compare the two energies and keep the clusters if the new energy is lower than the old or
 if the new energy is higher than the old only keep this change if this term is true:
 
-$$ e^{-(E_{new} - E_{old}) \over T} > random(0,1) $$
+$$ e^{-{(E_{new} - E_{old}) \over T}} > random(0,1) $$
 
 With T being the temperature of the system.
 

@@ -10,14 +10,14 @@ The main steps are these:
 1. load the data into Rust
 2. scale the data to lie between 0 and 1
 3. randomly group the genes into k clusters
-5. Calculate the eucledian distances between the genes and sum all these values per cluster 
-6. calculate the mean 'energy' in the system as mean cluster energy
+4. Calculate the eucledian distances between the genes and sum all these values per cluster 
+5. calculate the mean 'energy' in the system as mean cluster energy
 
-Now the fun starts - randomly asign one gene to a different cluster and re-run 5 and 6.
+Now the fun starts - randomly asign one gene to a different cluster and re-run 4 and 5.
 Compare the two energies and keep the clusters if the new energy is lower than the old or
 if the new energy is higher than the old only keep this change if this term is true:
 
-$$ e^-{(E_{new} - E_{old}) \over T} > random(0,1) $$
+$$ e^{-(E_{new} - E_{old}) \over T} > random(0,1) $$
 
 With T being the temperature of the system.
 

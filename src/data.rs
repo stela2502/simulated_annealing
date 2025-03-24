@@ -61,7 +61,7 @@ impl Data {
 	        }
 	    }
 	    rows -=1;
-	    println!("I got {rows} rows and {cols} cols in this data"  );
+	    println!("I got {rows} rows and {cols} cols in this data ({})", file  );
 
 	    let mut arr  = Vec::<f64>::with_capacity( cols * rows );
 	    let mut names = Vec::<String>::with_capacity( cols );

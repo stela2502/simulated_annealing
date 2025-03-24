@@ -71,12 +71,20 @@ OPTIONS:
 
 ## Output
 
+The main output is the cluster information;
+a two column tab separated table connecting cell/sample names with the cluster id.
+
+You can try the tool on our test data:
+
+
 ```
 target/release/simulated_annealing  --start "notThis" -c 10
-I got 256 rows and 16 cols in this data
+I got 256 rows and 16 cols in this data (testData/Spellman_Yeast_Cell_Cycle.tsv)
 precalculate the distances between genes
 Finished
 randomly assigning groups
-Starting energy is 486.76
-finished in 0 h 0 min 0 sec 31 milli sec - end energy was 294.19 with 7475 gene shifts (0.30%) and end t1 = 0.00
+Starting energy is 498.77
+finished in 0 h 0 min 0 sec 32 milli sec - end energy was 293.01 with 7520 gene shifts (0.30%) and end t1 = 0.00
+
+Clustering written to testData/TestClustering/SimulatedAnealing_k_10_t1_20_cf_0.9995_it_25000.tsv
 ````

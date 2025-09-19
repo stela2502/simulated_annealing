@@ -6,6 +6,8 @@ use std::io::BufRead;
 use ndarray::prelude::*;
 use ndarray::ViewRepr;
 //use std::collections::BTreeMap;
+use std::path::Path;
+use plotters::prelude::*;
 
 
 #[derive(Debug)]
@@ -161,10 +163,6 @@ impl Data {
 
 		let mut sum:f64 = 0.0;
 
-		for i in ids {
-			self.total_energy[*i] = 0.0;
-		}
-
 	    for i in 0..ids.len() {
 	        for j in i+1..ids.len() {
 
@@ -193,6 +191,49 @@ impl Data {
 		println!("{}", self.data);
 	}
 
+
+	pub fn plot(&self, prefix:&str, clusters:&[usize] )-> Result<(), Box<dyn std::error::Error>> {
+        let output_dir = Path::new(prefix).parent().unwrap_or_else(|| Path::new("."));
+        std::fs::create_dir_all(output_dir)?;
+
+        let k = clusters.iter().max().copied().unwrap_or(0);
+        for cluster_id in 0..=k {
+            let filename = format!("{}_cluster_{}.png", prefix, cluster_id +1 );
+            let root = BitMapBackend::new(&filename, (800, 600)).into_drawing_area();
+            root.fill(&WHITE)?;
+
+            let mut chart = ChartBuilder::on(&root)
+                .caption(format!("Cluster {}", cluster_id), ("sans-serif", 20))
+                .margin(20)
+                .x_label_area_size(40)
+                .y_label_area_size(40)
+                .build_cartesian_2d(0..self.cols, -1.0f64..1.0)?; // Adjust Y range if needed
+
+            chart.configure_mesh().draw()?;
+
+            // Collect all rows belonging to this cluster
+            let cluster_data: Vec<Vec<f64>> = self.data
+		        .axis_iter(Axis(0)) // Iterate over rows
+		        .zip( clusters.iter()) // Pair each row with its cluster ID
+		        .filter(|(_, &c)| c == cluster_id) // Keep only relevant clusters
+		        .map(|(row, _)| row.to_vec()) // Convert each row to Vec<f64>
+		        .collect();
+
+
+            // Draw each row as a line plot
+            for row in cluster_data {
+                chart.draw_series(LineSeries::new(
+                    row.iter().enumerate().map(|(x, &y)| (x, y)),
+                    &BLUE,
+                ))?;
+            }
+
+            root.present()?;
+            println!("Saved: {}", filename);
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

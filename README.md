@@ -1,3 +1,4 @@
+[![Rust](https://github.com/stela2502/simulated_annealing/actions/workflows/rust.yml/badge.svg)](https://github.com/stela2502/simulated_annealing/actions/workflows/rust.yml)
 # simulated_annealing
 
 This will in the end implement the final project ffrom this R course:

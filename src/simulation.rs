@@ -137,6 +137,10 @@ impl Simulation{
 		self.energy_array[self.changed[1]] = self.old_energy[1];
 	}
 
+	pub fn clusters(&self) -> &[usize] {
+		&self.new
+	}
+
 	pub fn write( &mut self, fp:&PathBuf,  ){
 		let f = match File::create( fp){
         	Ok(file) => file,
@@ -156,6 +160,10 @@ impl Simulation{
 	pub fn print_change( &self ){
 		println!("gene{} moved from cluster {} to {}", self.row_c, self.changed[0], self.changed[1] );
 
+	}
+
+	pub fn plot (&self, prefix:&str) {
+		let _ = self.data.plot( prefix, &self.new );
 	}
 }
 

@@ -76,23 +76,16 @@ fn main() {
         new_energy = sim.calc_energy( ) / opts.clusters as f64;
         doit = false;
         rand = rng.gen::<f64>();
-        if new_energy < old_energy {
-            doit = true;
-        }
-        else if libm::exp( -( (new_energy - old_energy) / t ) ) > rand {
-            doit = true;
-        }
-        if doit{
-            //sim.print_change();
-            //println!( "libm::exp( -( ({new_energy:0.6} - {old_energy:0.6}) / {t:0.2} ) ) = {:0.2} > {rand:0.2}",  libm::exp( -( (new_energy - old_energy) / t ) ));
+        
+        if new_energy < old_energy || libm::exp( -( (new_energy - old_energy) / t ) ) > rand {
             sim.fixate();
             shifts += 1;
             old_energy = new_energy;
-        }
-        else {
+        }else {
             sim.rinse();
             new_energy = old_energy;
         }
+        
         t *= opts.cf;
     }
 
@@ -102,6 +95,7 @@ fn main() {
     fp.push( format!("SimulatedAnealing_k_{}_t1_{}_cf_{}_it_{}.tsv", opts.clusters, opts.t1, opts.cf, opts.it ) );
     
     sim.write( &fp );
+    sim.plot(&opts.outpath );
 
     match now.elapsed() {
         Ok(elapsed) => {
